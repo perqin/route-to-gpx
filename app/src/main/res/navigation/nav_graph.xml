@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/FirstFragment"
-        android:name="com.perqin.routetogpx.FirstFragment"
+        android:name="com.perqin.routetogpx.views.main.map.MainMapFragment"
         android:label="@string/first_fragment_label"
-        tools:layout="@layout/fragment_first">
+        tools:layout="@layout/main_map_fragment">
 
         <action
             android:id="@+id/action_FirstFragment_to_SecondFragment"
