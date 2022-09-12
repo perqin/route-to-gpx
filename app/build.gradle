@@ -33,6 +33,14 @@ android {
     buildFeatures {
         viewBinding true
     }
+    signingConfigs {
+        debug {
+            storeFile rootProject.file('debug.keystore')
+            storePassword 'android'
+            keyPassword 'android'
+            keyAlias 'androiddebugkey'
+        }
+    }
 }
 
 dependencies {
