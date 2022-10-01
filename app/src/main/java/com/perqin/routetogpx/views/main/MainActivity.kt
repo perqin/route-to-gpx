@@ -57,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         vm.isRouteSearchActive.observe(this) {
+            binding.toolbar.visibility = if (it) View.GONE else View.VISIBLE
             binding.routeSearchView.root.visibility = if (it) View.VISIBLE else View.GONE
         }
         vm.routeSearchStart.observe(this) {

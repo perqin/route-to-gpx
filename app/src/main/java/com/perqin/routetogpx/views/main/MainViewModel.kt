@@ -31,6 +31,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private var dest: PoiInfo? = null
 
         init {
+            value = false
             addSource(_routeSearchStart) {
                 start = it
                 update()
