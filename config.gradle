@@ -20,5 +20,5 @@ ext {
     keyPassword = getParameter('keyPassword')
     keystoreFile = rootProject.file(getParameter('keystoreFile') ?: 'debug.keystore')
     keystorePassword = getParameter('keystorePassword')
-    baiduLbsKey = getParameter('baiduLbsKey')
+    baiduLbsKey = getParameter('BAIDU_LBS_KEY')
 }
