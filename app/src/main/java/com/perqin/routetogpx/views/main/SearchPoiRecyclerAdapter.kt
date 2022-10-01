@@ -12,6 +12,7 @@ class SearchPoiRecyclerAdapter : RecyclerView.Adapter<SearchPoiRecyclerAdapter.V
             field = value
             notifyDataSetChanged()
         }
+    var onItemClickListener: ((data: PoiInfo, index: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(
         SearchPoiItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -23,6 +24,9 @@ class SearchPoiRecyclerAdapter : RecyclerView.Adapter<SearchPoiRecyclerAdapter.V
         val poi = dataSet[position]
         holder.binding.nameTextView.text = poi.name
         holder.binding.addressTextView.text = poi.address
+        holder.binding.root.setOnClickListener {
+            onItemClickListener?.invoke(poi, position)
+        }
     }
 
     class ViewHolder(val binding: SearchPoiItemBinding) : RecyclerView.ViewHolder(binding.root)

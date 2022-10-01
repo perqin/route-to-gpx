@@ -17,6 +17,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize" />
 
+        <include
+            layout="@layout/route_search_view"
+            android:id="@+id/routeSearchView" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <include layout="@layout/content_main" />
@@ -26,7 +30,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?attr/colorSurface"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:behavior_hideable="true">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/searchResultRecyclerView"

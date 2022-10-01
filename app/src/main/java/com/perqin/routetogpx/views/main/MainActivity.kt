@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.SearchView
 import androidx.appcompat.app.AppCompatActivity
@@ -43,6 +44,9 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         searchPoiRecyclerAdapter = SearchPoiRecyclerAdapter()
+        searchPoiRecyclerAdapter.onItemClickListener = { data, _ ->
+            vm.onSelectSearchPoi(data)
+        }
 
         vm.searchPoiList.observe(this) {
             searchPoiRecyclerAdapter.dataSet = it
@@ -52,12 +56,22 @@ class MainActivity : AppCompatActivity() {
                 BottomSheetBehavior.STATE_HIDDEN
             }
         }
+        vm.isRouteSearchActive.observe(this) {
+            binding.routeSearchView.root.visibility = if (it) View.VISIBLE else View.GONE
+        }
+        vm.routeSearchStart.observe(this) {
+            binding.routeSearchView.startTextView.text = it?.name ?: return@observe
+        }
+        vm.routeSearchDest.observe(this) {
+            binding.routeSearchView.destTextView.text = it?.name ?: return@observe
+        }
 
         binding.searchResultRecyclerView.apply {
             adapter = searchPoiRecyclerAdapter
             layoutManager = LinearLayoutManager(context)
         }
         searchPoiBottomSheetBehavior = BottomSheetBehavior.from(binding.searchResultBottomSheet)
+        searchPoiBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         binding.fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                     .setAnchorView(R.id.fab)
