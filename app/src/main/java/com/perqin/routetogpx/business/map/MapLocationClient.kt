@@ -30,6 +30,8 @@ class MapLocationClient {
         client.stop()
     }
 
+    fun requestLocation() =client.requestLocation()
+
     fun configureLocOption(locOption: LocationClientOption) {
         client.locOption = locOption
     }

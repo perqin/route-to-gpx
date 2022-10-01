@@ -1,10 +1,15 @@
 package com.perqin.routetogpx.views.main
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.viewModelScope
+import com.baidu.location.BDLocation
+import com.baidu.mapapi.model.LatLng
 import com.baidu.mapapi.search.core.PoiInfo
 import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener
 import com.baidu.mapapi.search.poi.PoiCitySearchOption
@@ -13,8 +18,17 @@ import com.baidu.mapapi.search.poi.PoiDetailSearchResult
 import com.baidu.mapapi.search.poi.PoiIndoorResult
 import com.baidu.mapapi.search.poi.PoiResult
 import com.baidu.mapapi.search.poi.PoiSearch
+import com.perqin.routetogpx.business.map.MapLocationClient
+import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application, private val locationClient: MapLocationClient) : AndroidViewModel(application) {
+    private val location = locationClient.location
+    private val locationObserver = Observer<BDLocation> {
+        // Just for requesting latest my location value
+    }
+
     private val poiSearch = PoiSearch.newInstance()
 
     private val _searchPoiList = MutableLiveData<List<PoiInfo>>(emptyList())
@@ -48,6 +62,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     init {
+        location.observeForever(locationObserver)
         poiSearch.setOnGetPoiSearchResultListener(object : OnGetPoiSearchResultListener {
             override fun onGetPoiResult(result: PoiResult) {
                 _searchPoiList.value = result.allPoi
@@ -68,6 +83,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         poiSearch.destroy()
+        location.removeObserver(locationObserver)
     }
 
     fun searchPoi(query: String) {
@@ -77,5 +93,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun onSelectSearchPoi(poiInfo: PoiInfo) {
         _searchPoiList.value = emptyList()
         _routeSearchDest.value = poiInfo
+        if (_routeSearchStart.value == null) {
+            viewModelScope.launch {
+                setStartToMyLocationAndSearch()
+            }
+        }
+    }
+
+    private suspend fun setStartToMyLocationAndSearch() {
+        _routeSearchStart.value = PoiInfo().apply {
+            name = "Finding my location"
+        }
+        val location = if (location.value == null) {
+            val result = locationClient.requestLocation()
+            if (result != 0) {
+                Log.w(TAG, "Failed to request location: $result")
+                return
+            }
+            suspendCoroutine { cont ->
+                location.observeForever(object : Observer<BDLocation> {
+                    override fun onChanged(t: BDLocation?) {
+                        if (t != null) {
+                            location.removeObserver(this)
+                            cont.resume(t)
+                        }
+                    }
+                })
+            }
+        } else {
+            location.value!!
+        }
+        _routeSearchStart.value = PoiInfo().apply {
+            setName("My location")
+            setLocation(LatLng(location.latitude, location.longitude))
+        }
+        println("TODO: Planning from ${_routeSearchStart.value?.name} to ${_routeSearchDest.value?.name}")
+    }
+
+    companion object {
+        private const val TAG = "MainViewModel"
     }
 }
