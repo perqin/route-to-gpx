@@ -22,11 +22,11 @@ class MainMapViewModel(application: Application, private val mapInitializer: Map
     }
 
     fun resumeLocation() {
-        locationClient.stop()
+        locationClient.start()
     }
 
     fun pauseLocation() {
-        locationClient.start()
+        locationClient.stop()
     }
 
     private fun setupLocationClient() {
