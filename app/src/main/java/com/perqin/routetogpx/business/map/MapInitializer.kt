@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Looper
 import com.baidu.mapapi.SDKInitializer
 
-class MapInitializer(private val context: Context) {
+class MapInitializer(private val context: Context, private val locationClient: MapLocationClient) {
     private var isInitialized = false
 
     fun init() {
@@ -15,5 +15,10 @@ class MapInitializer(private val context: Context) {
             return
         }
         SDKInitializer.initialize(context)
+
+        // Init LocationClient
+        locationClient.init(context)
+
+        isInitialized = true
     }
 }

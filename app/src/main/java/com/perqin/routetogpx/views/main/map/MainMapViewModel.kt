@@ -3,21 +3,14 @@ package com.perqin.routetogpx.views.main.map
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.baidu.location.BDAbstractLocationListener
 import com.baidu.location.BDLocation
-import com.baidu.location.LocationClient
 import com.baidu.location.LocationClientOption
-import com.perqin.routetogpx.business.map.MapInitializer
+import com.perqin.routetogpx.business.map.MapLocationClient
 
-class MainMapViewModel(application: Application, private val mapInitializer: MapInitializer) : AndroidViewModel(application) {
-    private lateinit var locationClient: LocationClient
-
-    private val _myLocation = MutableLiveData<BDLocation>()
-    val myLocation: LiveData<BDLocation> = _myLocation
+class MainMapViewModel(application: Application, private val locationClient: MapLocationClient) : AndroidViewModel(application) {
+    val myLocation: LiveData<BDLocation> = locationClient.location
 
     fun initMapSdk() {
-        mapInitializer.init()
         setupLocationClient()
     }
 
@@ -30,19 +23,9 @@ class MainMapViewModel(application: Application, private val mapInitializer: Map
     }
 
     private fun setupLocationClient() {
-        locationClient = LocationClient(getApplication()).apply {
-            locOption = LocationClientOption().apply {
-                openGps = true
-                scanSpan = 1000
-            }
-            registerLocationListener(object : BDAbstractLocationListener() {
-                override fun onReceiveLocation(location: BDLocation?) {
-                    if (location == null) {
-                        return
-                    }
-                    _myLocation.value = location
-                }
-            })
-        }
+        locationClient.configureLocOption(LocationClientOption().apply {
+            openGps = true
+            scanSpan = 1000
+        })
     }
 }

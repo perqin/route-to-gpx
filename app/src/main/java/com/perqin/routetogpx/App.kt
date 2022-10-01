@@ -1,7 +1,9 @@
 package com.perqin.routetogpx
 
 import android.app.Application
+import com.perqin.routetogpx.business.map.MapInitializer
 import com.perqin.routetogpx.koin.appModule
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -14,5 +16,7 @@ class App : Application() {
             androidContext(this@App)
             modules(appModule)
         }
+
+        get<MapInitializer>().init()
     }
 }
