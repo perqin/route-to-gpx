@@ -1,11 +1,13 @@
 package com.perqin.routetogpx.views.main.map
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import com.baidu.mapapi.map.MapStatusUpdateFactory
 import com.baidu.mapapi.map.MyLocationData
+import com.baidu.mapapi.model.LatLng
 import com.perqin.routetogpx.databinding.MainMapFragmentBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -23,6 +25,8 @@ class MainMapFragment : Fragment() {
     private val map get() = binding.mapView.map
 
     private val vm: MainMapViewModel by viewModel()
+
+    private var isInitialZoomFired = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +56,10 @@ class MainMapFragment : Fragment() {
                 .latitude(location.latitude)
                 .longitude(location.longitude)
                 .build())
+            if (!isInitialZoomFired) {
+                map.setMapStatus(MapStatusUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 16F))
+                isInitialZoomFired = true
+            }
         }
     }
 
