@@ -18,6 +18,11 @@ import com.baidu.mapapi.search.poi.PoiDetailSearchResult
 import com.baidu.mapapi.search.poi.PoiIndoorResult
 import com.baidu.mapapi.search.poi.PoiResult
 import com.baidu.mapapi.search.poi.PoiSearch
+import com.baidu.mapapi.search.route.BikingRoutePlanOption
+import com.baidu.mapapi.search.route.BikingRouteResult
+import com.baidu.mapapi.search.route.PlanNode
+import com.baidu.mapapi.search.route.RoutePlanSearch
+import com.perqin.routetogpx.baidumaputils.OnGetRoutePlanResultAdapter
 import com.perqin.routetogpx.business.map.MapLocationClient
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
@@ -39,6 +44,11 @@ class MainViewModel(application: Application, private val locationClient: MapLoc
 
     private val _routeSearchDest = MutableLiveData<PoiInfo?>()
     val routeSearchDest: LiveData<PoiInfo?> = _routeSearchDest
+
+    private val routeSearch = RoutePlanSearch.newInstance()
+
+    private val _bikingRouteResult = MutableLiveData<BikingRouteResult>()
+    val bikingRouteResult: LiveData<BikingRouteResult> = _bikingRouteResult
 
     val isRouteSearchActive = object : MediatorLiveData<Boolean>() {
         private var start: PoiInfo? = null
@@ -78,11 +88,17 @@ class MainViewModel(application: Application, private val locationClient: MapLoc
                 // Deprecated
             }
         })
+        routeSearch.setOnGetRoutePlanResultListener(object : OnGetRoutePlanResultAdapter() {
+            override fun onGetBikingRouteResult(bikingRouteResult: BikingRouteResult) {
+                _bikingRouteResult.value = bikingRouteResult
+            }
+        })
     }
 
     override fun onCleared() {
         super.onCleared()
         poiSearch.destroy()
+        routeSearch.destroy()
         location.removeObserver(locationObserver)
     }
 
@@ -127,7 +143,9 @@ class MainViewModel(application: Application, private val locationClient: MapLoc
             setName("My location")
             setLocation(LatLng(location.latitude, location.longitude))
         }
-        println("TODO: Planning from ${_routeSearchStart.value?.name} to ${_routeSearchDest.value?.name}")
+        routeSearch.bikingSearch(BikingRoutePlanOption()
+            .from(PlanNode.withLocation(_routeSearchStart.value!!.location))
+            .to(PlanNode.withLocation(_routeSearchDest.value!!.location)))
     }
 
     companion object {
